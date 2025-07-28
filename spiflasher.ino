@@ -49,10 +49,30 @@ void fullDetect() {
   };
   digitalWrite(SPI_CS, HIGH);
   
-  uint32_t capacity = getCapacityFromID(jedec[2]);
-  
-  if (capacity == 0 && jedec[0] == 0xEF) {
-    capacity = getCapacityFromID(jedec[1]);
+  uint32_t capacity = 0;
+  if (jedec[0] == 0xEF) {
+    if (jedec[2] >= 0x11 && jedec[2] <= 0x19) {
+      capacity = (1UL << (jedec[2] - 0x11 + 17));
+    }
+  } else {
+    switch (jedec[2]) {
+      case 0x11: capacity = 0x80000;   break;
+      case 0x12: capacity = 0x100000;  break;
+      case 0x13: capacity = 0x200000;  break;
+      case 0x14: capacity = 0x400000;  break;
+      case 0x15: capacity = 0x800000;  break;
+      case 0x16: capacity = 0x1000000; break;
+      case 0x17: capacity = 0x2000000; break;
+      case 0x18: capacity = 0x4000000; break;
+      case 0x19: capacity = 0x8000000; break;
+      case 0x40: capacity = 0x100000;  break;
+      case 0x50: capacity = 0x200000;  break;
+      case 0x60: capacity = 0x400000;  break;
+      case 0x70: capacity = 0x800000;  break;
+      case 0x80: capacity = 0x1000000; break;
+      case 0x90: capacity = 0x2000000; break;
+      default:   capacity = 0;         break;
+    }
   }
   
   Serial.write(jedec, 3);
